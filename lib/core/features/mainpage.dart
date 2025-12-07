@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
+import 'package:video_player/video_player.dart';
+import 'package:razacks/core/provider/booking_provider.dart';
+import 'package:razacks/core/provider/video_provider.dart';
 
 class Mainpage extends StatefulWidget {
   const Mainpage({super.key});
@@ -14,57 +17,36 @@ class _MainpageState extends State<Mainpage> {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _bookingSectionKey = GlobalKey();
 
-  Future<void> _callNumber(String number) async {
-    final Uri callUri = Uri(scheme: 'tel', path: number);
-
-    if (await canLaunchUrl(callUri)) {
-      await launchUrl(callUri);
-    } else {
-      throw 'Could not launch $number';
-    }
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
-  Future<void> _openWhatsApp(String number, String message) async {
-    final String encodedMessage = Uri.encodeComponent(message);
-
-    // Preferred WhatsApp package on most devices
-    const String whatsappPackage = "com.whatsapp";
-
-    final Uri whatsappUri = Uri.parse(
-      "whatsapp://send?phone=$number&text=$encodedMessage",
-    );
-
-    // STEP 1 — Check if WhatsApp package exists
-    final bool isInstalled = await canLaunchUrl(
-      Uri(scheme: "package", path: whatsappPackage),
-    );
-
-    if (isInstalled) {
-      // STEP 2 — Try launching using the package name
-      await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
-    } else {
-      print("WhatsApp NOT installed, opening web fallback.");
-      final Uri webFallback = Uri.parse(
-        "https://wa.me/$number?text=$encodedMessage",
+  void _scrollToBookingSection() {
+    final ctx = _bookingSectionKey.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOut,
       );
-      await launchUrl(webFallback, mode: LaunchMode.externalApplication);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bookingProvider = context.read<BookingProvider>();
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        controller: _scrollController, // <-- controller added
+        controller: _scrollController,
         child: Column(
           children: [
             //////////////////////// CLINIC IMAGE + CENTER TITLE ////////////////////////////////
-
-            ////////////////////////////////////////////////////////////////////////////////////
             Stack(
               children: [
-                //  Clinic Logo (Top Left)
                 Image.asset(
                   "assets/clinic.jpeg",
                   width: double.infinity,
@@ -79,7 +61,6 @@ class _MainpageState extends State<Mainpage> {
                     height: 30,
                   ),
                 ),
-
                 Positioned(
                   top: 100,
                   left: 0,
@@ -97,7 +78,6 @@ class _MainpageState extends State<Mainpage> {
                     ),
                   ),
                 ),
-
                 Positioned(
                   top: 179,
                   left: MediaQuery.of(context).size.width * 0.60,
@@ -118,13 +98,7 @@ class _MainpageState extends State<Mainpage> {
                   right: 0,
                   child: Center(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Scrollable.ensureVisible(
-                          _bookingSectionKey.currentContext!,
-                          duration: const Duration(milliseconds: 600),
-                          curve: Curves.easeInOut,
-                        );
-                      },
+                      onPressed: _scrollToBookingSection,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF000548),
                         foregroundColor: const Color(0xFFFFFFFF),
@@ -156,9 +130,7 @@ class _MainpageState extends State<Mainpage> {
 
             const SizedBox(height: 30),
 
-            ////////////////////////////// CLINIC DESCRPTION ////////////////////////////////////
-
-            ////////////////////////////////////////////////////////////////////////////////////
+            ////////////////////////////// CLINIC DESCRIPTION ////////////////////////////////////
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: RichText(
@@ -186,9 +158,7 @@ class _MainpageState extends State<Mainpage> {
 
             const SizedBox(height: 40),
 
-            ///////////////////////////// "WHY CHOOSE US" TITLE/////////////////////////////////
-
-            ////////////////////////////////////////////////////////////////////////////////////
+            ///////////////////////////// "WHY CHOOSE US" TITLE //////////////////////////////////
             Center(
               child: RichText(
                 text: TextSpan(
@@ -216,8 +186,6 @@ class _MainpageState extends State<Mainpage> {
             const SizedBox(height: 20),
 
             ////////////////////////////// BLUR CARD WITH STATS /////////////////////////////////
-
-            ////////////////////////////////////////////////////////////////////////////////////
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
               child: SizedBox(
@@ -234,7 +202,6 @@ class _MainpageState extends State<Mainpage> {
                         ),
                       ),
                     ),
-
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: ClipRRect(
@@ -359,7 +326,6 @@ class _MainpageState extends State<Mainpage> {
 
             const SizedBox(height: 20),
 
-            // ------------------ PARAGRAPH ------------------ \\
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
@@ -372,6 +338,7 @@ class _MainpageState extends State<Mainpage> {
                 ),
               ),
             ),
+
             const SizedBox(height: 50),
 
             ///////////////////////////// MEET DR MAHSOOM /////////////////////////////////////
@@ -415,7 +382,6 @@ class _MainpageState extends State<Mainpage> {
                       shape: BoxShape.circle,
                     ),
                   ),
-
                   Positioned(
                     top: -20,
                     child: Image.asset(
@@ -424,9 +390,8 @@ class _MainpageState extends State<Mainpage> {
                       fit: BoxFit.contain,
                     ),
                   ),
-
                   Positioned(
-                    top: 100,
+                    top: 50,
                     left: 0,
                     child: Container(
                       width: 130,
@@ -448,9 +413,8 @@ class _MainpageState extends State<Mainpage> {
                       ),
                     ),
                   ),
-
                   Positioned(
-                    top: 100,
+                    top: 50,
                     right: 0,
                     child: Container(
                       width: 130,
@@ -463,7 +427,7 @@ class _MainpageState extends State<Mainpage> {
                         ],
                       ),
                       child: Text(
-                        "B.H.M.S, CCH Certified  ",
+                        "B.H.M.S Certified",
                         textAlign: TextAlign.center,
                         style: GoogleFonts.inter(
                           fontSize: 10,
@@ -472,7 +436,29 @@ class _MainpageState extends State<Mainpage> {
                       ),
                     ),
                   ),
-
+                  Positioned(
+                    top: 120,
+                    right: 0,
+                    child: Container(
+                      width: 130,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF000548),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(blurRadius: 8, offset: Offset(0, 3)),
+                        ],
+                      ),
+                      child: Text(
+                        "Using GERMAN imported Medicines",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                   Positioned(
                     bottom: 120,
                     left: 0,
@@ -496,7 +482,29 @@ class _MainpageState extends State<Mainpage> {
                       ),
                     ),
                   ),
-
+                  Positioned(
+                    bottom: 200,
+                    left: 0,
+                    child: Container(
+                      width: 140,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF000548),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(blurRadius: 8, offset: Offset(0, 3)),
+                        ],
+                      ),
+                      child: Text(
+                        "Serving patients in 12+ countries",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                   Positioned(
                     bottom: 130,
                     right: 0,
@@ -551,7 +559,7 @@ class _MainpageState extends State<Mainpage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Dr. Mahsoom, a dedicated homeopathic physician (B.H.M.S.) from Athanikkal, brings over 8 years of clinical experience in treating acute and chronic conditions. His approach is rooted in understanding the individual — medical history, lifestyle, emotional health, and root causes—not just the illness.",
+                    "Dr. Muhammed Mahsoom, a dedicated homeopathic physician (B.H.M.S.) from Malappuram,India brings over 10+ years of clinical experience in treating acute and chronic conditions. His approach is rooted in understanding the individual — medical history, lifestyle, emotional health, and root causes—not just the illness.",
                     textAlign: TextAlign.justify,
                     style: GoogleFonts.inter(
                       fontSize: 16,
@@ -603,7 +611,79 @@ class _MainpageState extends State<Mainpage> {
                 ),
                 child: Column(
                   children: [
-                    ////////////////// CARD 1
+                    // CARD 1
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.only(bottom: 18),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0xFF000543), Color(0xFF000B8E)],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Piles-Fisure-Fistula treatment",
+                            style: GoogleFonts.montserrat(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "Restore comfort with natural treatment",
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // CARD 2
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.only(bottom: 18),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0xFF000543), Color(0xFF000B8E)],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Migraine Treatment",
+                            style: GoogleFonts.montserrat(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "Natural relief for recurring migraine pain.",
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // CARD 3
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
@@ -639,7 +719,7 @@ class _MainpageState extends State<Mainpage> {
                       ),
                     ),
 
-                    ////////////////// CARD 2
+                    // CARD 4
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
@@ -656,7 +736,7 @@ class _MainpageState extends State<Mainpage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Chronic Disease Management",
+                            "Asthma Treatment",
                             style: GoogleFonts.montserrat(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -665,79 +745,7 @@ class _MainpageState extends State<Mainpage> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            "Deep & recurring conditions treated at root.",
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    ////////////////// CARD 3
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      margin: const EdgeInsets.only(bottom: 18),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0xFF000543), Color(0xFF000B8E)],
-                        ),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Chronic Disease Management",
-                            style: GoogleFonts.montserrat(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            "Deep & recurring conditions treated at root.",
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: Colors.white70,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    ////////////////// CARD 4
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      margin: const EdgeInsets.only(bottom: 18),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0xFF000543), Color(0xFF000B8E)],
-                        ),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Chronic Disease Management",
-                            style: GoogleFonts.montserrat(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            "Deep & recurring conditions treated at root.",
+                            "Naturally easing asthma, restoring comfort.",
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: Colors.white70,
@@ -782,10 +790,11 @@ class _MainpageState extends State<Mainpage> {
             const SizedBox(height: 35),
 
             SizedBox(
-              height: 270,
+              height: 650,
               child: PageView(
                 controller: PageController(viewportFraction: 0.90),
                 children: [
+                  // FIRST CARD
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Container(
@@ -800,114 +809,78 @@ class _MainpageState extends State<Mainpage> {
                       ),
                       child: Column(
                         children: [
-                          Row(
+                          // NAME + TITLE (No image)
+                          Column(
                             children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(40),
-                                child: Image.asset(
-                                  "assets/doc.jpg",
-                                  width: 65,
-                                  height: 65,
-                                  fit: BoxFit.cover,
+                              Text(
+                                "Gopalakrishnan",
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(width: 18),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Dr. Athif Aslam",
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "MBBS, Aster MIMS",
-                                    style: GoogleFonts.inter(
-                                      fontSize: 14,
-                                      color: Colors.white70,
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(height: 4),
+                              Text(
+                                "Ex-military",
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  color: Colors.white70,
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 20),
-                          Text(
-                            "I have referred several chronic cases here, especially lot of patients with long standing respiratory and skin conditions. The improvement I’ve observed over all the follow-ups has been steady and clinically meaningful.",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              height: 1.6,
-                              color: Colors.white.withOpacity(0.95),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Container(
-                      padding: const EdgeInsets.all(22),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22),
-                        gradient: const LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0xFF000B8E), Color(0xFF000543)],
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(40),
-                                child: Image.asset(
-                                  "assets/fem.jpg",
-                                  width: 65,
-                                  height: 65,
-                                  fit: BoxFit.cover,
+                          // VIDEO PLAYER USING PROVIDER
+                          Consumer<VideoProvider>(
+                            builder: (context, videoProv, _) {
+                              return GestureDetector(
+                                onTap: () {
+                                  videoProv.togglePlayPause();
+                                },
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: videoProv.isInitialized
+                                      ? Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            AspectRatio(
+                                              aspectRatio: videoProv
+                                                  .gopalController
+                                                  .value
+                                                  .aspectRatio,
+                                              child: VideoPlayer(
+                                                videoProv.gopalController,
+                                              ),
+                                            ),
+                                            AnimatedOpacity(
+                                              opacity: videoProv.isPlaying
+                                                  ? 0.0
+                                                  : 1.0,
+                                              duration: const Duration(
+                                                milliseconds: 200,
+                                              ),
+                                              child: const Icon(
+                                                Icons.play_circle_fill,
+                                                size: 60,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Container(
+                                          height: 200,
+                                          color: Colors.black26,
+                                          child: const Center(
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
                                 ),
-                              ),
-                              const SizedBox(width: 18),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Dr. Shahana Rahim",
-                                    style: GoogleFonts.montserrat(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "MD, General Medicine",
-                                    style: GoogleFonts.inter(
-                                      fontSize: 14,
-                                      color: Colors.white70,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            "A very compassionate and clinically accurate approach. Patients receive personalised and holistic homeopathic care that leads to reliable long term improvements.",
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              height: 1.6,
-                              color: Colors.white.withOpacity(0.95),
-                            ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -987,7 +960,7 @@ class _MainpageState extends State<Mainpage> {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  "OPEN : 9 am–8:45 pm Everyday",
+                  "OPEN : 9 am–8:45 pm Monday-Saturday",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
@@ -1000,9 +973,7 @@ class _MainpageState extends State<Mainpage> {
 
             const SizedBox(height: 50),
 
-            ////////////////////BOOK APPOINTMENT SECTION/////////////////////////////////
-
-            /////////////////////////////////////////////////////////////////////////////
+            //////////////////// BOOK APPOINTMENT SECTION /////////////////////////////////
             Container(
               key: _bookingSectionKey,
               child: Column(
@@ -1030,9 +1001,7 @@ class _MainpageState extends State<Mainpage> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 6),
-
                   Text(
                     "Complete your appointment within minutes!",
                     style: GoogleFonts.inter(
@@ -1040,7 +1009,6 @@ class _MainpageState extends State<Mainpage> {
                       color: const Color(0xFF000548),
                     ),
                   ),
-
                   const SizedBox(height: 30),
 
                   Row(
@@ -1070,14 +1038,12 @@ class _MainpageState extends State<Mainpage> {
 
                   const SizedBox(height: 30),
 
-                  //////////////////// BOOKING THROUGH NUMBER ///////////////////
-
-                  ///////////////////////////////////////////////////////////////
+                  // BOOKING THROUGH NUMBER
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: InkWell(
                       onTap: () {
-                        _callNumber("9844533685");
+                        bookingProvider.callNumber("9844533685");
                       },
                       child: Container(
                         width: double.infinity,
@@ -1111,19 +1077,16 @@ class _MainpageState extends State<Mainpage> {
 
                   const SizedBox(height: 18),
 
-                  ////////////////// BOOKING THROUGH WHATSAPP ///////////////////
-
-                  ///////////////////////////////////////////////////////////////
+                  // BOOKING THROUGH WHATSAPP
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: InkWell(
                       onTap: () {
-                        _openWhatsApp(
+                        bookingProvider.openWhatsApp(
                           "919844533685",
                           "Hello, I would like to book an appointment.",
                         );
                       },
-
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
@@ -1202,7 +1165,7 @@ class _MainpageState extends State<Mainpage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Razackshomeo@gmail.com",
+                              "mahsoommuhammed9844@gmail.com",
                               style: GoogleFonts.inter(
                                 fontSize: 16,
                                 color: Colors.white,
@@ -1229,20 +1192,11 @@ class _MainpageState extends State<Mainpage> {
                         ),
                       ],
                     ),
-
-                    const SizedBox(height: 30),
-
+                    const SizedBox(height: 10),
                     Center(
                       child: Column(
                         children: [
-                          Text(
-                            "Privacy Policy | Terms & Conditions",
-                            style: GoogleFonts.inter(
-                              fontSize: 13,
-                              color: Colors.white.withOpacity(0.85),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 2),
                           Text(
                             "All rights reserved ©2025 Dr. Razack’s Homeopathy",
                             style: GoogleFonts.inter(
