@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:razacks/core/provider/booking_provider.dart';
 import 'package:razacks/core/provider/video_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Mainpage extends StatefulWidget {
   const Mainpage({super.key});
@@ -341,6 +342,95 @@ class _MainpageState extends State<Mainpage> {
 
             const SizedBox(height: 50),
 
+            ///////////////////////////// MEET OUR FOUNDER /////////////////////////////////////
+            Center(
+              child: RichText(
+                text: TextSpan(
+                  style: const TextStyle(color: Color(0xFF000548)),
+                  children: [
+                    TextSpan(
+                      text: "MEET ",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 24,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    TextSpan(
+                      text: "OUR FOUNDER",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // IMAGE IN CENTER WITH CIRCLE BACKGROUND
+            SizedBox(
+              width: 380,
+              height: 380,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 280,
+                    height: 280,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+
+                  // FOUNDER IMAGE
+                  Positioned(
+                    top: -10,
+                    child: Image.asset(
+                      "assets/father.png",
+                      width: 280,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            // PARAGRAPH ABOUT THE FOUNDER (same style as Doctor)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: RichText(
+                textAlign: TextAlign.justify,
+                text: const TextSpan(
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF000548),
+                    height: 1.4,
+                  ),
+                  children: [
+                    TextSpan(
+                      text:
+                          "The institution, Dr. Razack's Homoeopathy, was established in 1982 in the Anangadi Kalalundi Nagaram area of Malappuram district by",
+                    ),
+                    TextSpan(
+                      text: "DR P.A RAZACK",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text:
+                          ", who propagated Homoeopathy in the region, demonstrated proficiency in treating many chronic diseases. He gained expertise in the treatment of diseases like Cancer, Piles, Fissure, Fistula, and various allergies. Due to the shortage of space, the clinic was expanded to a place called Athanikkal, and in 2016, his son, Dr. Muhammed Mahsoom, who holds a BHMS degree from a Bharathesh medical college for Homoeopathy in Belgaum, Karnataka took charge as the Chief Homoeopathic Consultant. Dr. Muhammed Mahsoom has also gained experience by serving in various Homoeopathic hospitals.",
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 50),
+
             ///////////////////////////// MEET DR MAHSOOM /////////////////////////////////////
             Center(
               child: RichText(
@@ -628,7 +718,7 @@ class _MainpageState extends State<Mainpage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Piles-Fisure-Fistula treatment",
+                            "Piles-Fissure-Fistula Treatment",
                             style: GoogleFonts.montserrat(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -700,7 +790,7 @@ class _MainpageState extends State<Mainpage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Chronic Disease Management",
+                            "Online Treatment",
                             style: GoogleFonts.montserrat(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -709,7 +799,7 @@ class _MainpageState extends State<Mainpage> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            "Deep & recurring conditions treated at root.",
+                            "Delivering medicines to 12+ countries through online treatment.",
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: Colors.white70,
@@ -922,16 +1012,33 @@ class _MainpageState extends State<Mainpage> {
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                height: 260,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFF000543), width: 3),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Image.asset("assets/map.png", fit: BoxFit.cover),
+              child: InkWell(
+                onTap: () async {
+                  final Uri mapUrl = Uri.parse(
+                    "https://www.google.com/maps/place/11.125415455541955, 75.84654174930253",
+                  );
+
+                  if (!await launchUrl(
+                    mapUrl,
+                    mode: LaunchMode.externalApplication,
+                  )) {
+                    throw Exception("Could not launch Google Maps");
+                  }
+                },
+                child: Container(
+                  height: 260,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: const Color(0xFF000543),
+                      width: 3,
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.asset("assets/map.png", fit: BoxFit.cover),
+                  ),
                 ),
               ),
             ),
@@ -941,7 +1048,7 @@ class _MainpageState extends State<Mainpage> {
             Column(
               children: [
                 Text(
-                  "Dr Razack's homeopathy",
+                  "Dr Razack's Homeopathy",
                   style: GoogleFonts.montserrat(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
